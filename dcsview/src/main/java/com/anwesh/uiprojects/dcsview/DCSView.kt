@@ -22,8 +22,14 @@ class DCSView(ctx : Context) : View(ctx) {
 
     private val renderer = Renderer(this)
 
+    var onCompleteListener : OnAnimationCompletionListener? = null
+
     override fun onDraw(canvas : Canvas) {
         renderer.render(canvas, paint)
+    }
+
+    fun addOnCompletionListener(onComplete : (Int) -> Unit) {
+        onCompleteListener = OnAnimationCompletionListener(onComplete)
     }
 
     override fun onTouchEvent(event : MotionEvent): Boolean {
@@ -111,8 +117,10 @@ class DCSView(ctx : Context) : View(ctx) {
 
         }
 
-        fun update(stopcb : (Float) -> Unit) {
-            state.update(stopcb)
+        fun update(stopcb : (Int, Float) -> Unit) {
+            state.update {
+                stopcb(i, it)
+            }
         }
 
         fun startUpdating(startcb : () -> Unit) {
@@ -142,12 +150,12 @@ class DCSView(ctx : Context) : View(ctx) {
             curr.draw(canvas, paint)
         }
 
-        fun update(stopcb : (Float) -> Unit) {
-            curr.update {
+        fun update(stopcb : (Int, Float) -> Unit) {
+            curr.update {j, scale ->
                 curr = curr.getNext(dir) {
                     dir *= -1
                 }
-                stopcb(it)
+                stopcb(j, scale)
             }
         }
 
@@ -166,8 +174,11 @@ class DCSView(ctx : Context) : View(ctx) {
             canvas.drawColor(Color.parseColor("#BDBDBD"))
             dcs.draw(canvas, paint)
             animator.animate {
-                dcs.update {
+                dcs.update {j, scale ->
                     animator.stop()
+                    when (scale) {
+                        1f -> view.onCompleteListener?.onComplete?.invoke(j)
+                    }
                 }
             }
         }
@@ -186,4 +197,6 @@ class DCSView(ctx : Context) : View(ctx) {
             return view
         }
     }
+
+    data class OnAnimationCompletionListener(var onComplete : (Int) -> Unit)
 }
