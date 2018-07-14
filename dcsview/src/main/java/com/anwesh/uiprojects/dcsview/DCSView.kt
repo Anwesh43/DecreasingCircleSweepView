@@ -4,6 +4,7 @@ package com.anwesh.uiprojects.dcsview
  * Created by anweshmishra on 14/07/18.
  */
 
+import android.app.Activity
 import android.view.View
 import android.content.Context
 import android.view.MotionEvent
@@ -173,6 +174,14 @@ class DCSView(ctx : Context) : View(ctx) {
             dcs.startUpdating {
                 animator.stop()
             }
+        }
+    }
+
+    companion object {
+        fun create(activity : Activity) : DCSView {
+            val view : DCSView = DCSView(activity)
+            activity.setContentView(view)
+            return view
         }
     }
 }
