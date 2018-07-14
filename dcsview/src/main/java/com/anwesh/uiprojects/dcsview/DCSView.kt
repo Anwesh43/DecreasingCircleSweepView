@@ -137,7 +137,7 @@ class DCSView(ctx : Context) : View(ctx) {
             curr.draw(canvas, paint)
         }
 
-        fun update(stopcb : (Float) -> Int) {
+        fun update(stopcb : (Float) -> Unit) {
             curr.update {
                 curr = curr.getNext(dir) {
                     dir *= -1
@@ -148,6 +148,29 @@ class DCSView(ctx : Context) : View(ctx) {
 
         fun startUpdating(startcb : () -> Unit) {
             curr.startUpdating(startcb)
+        }
+    }
+
+    data class Renderer(var view : DCSView) {
+
+        private val dcs : DCS = DCS(0)
+
+        private val animator : Animator = Animator(view)
+
+        fun render(canvas : Canvas, paint : Paint) {
+            canvas.drawColor(Color.parseColor("#BDBDBD"))
+            dcs.draw(canvas, paint)
+            animator.animate {
+                dcs.update {
+                    animator.stop()
+                }
+            }
+        }
+
+        fun handleTap() {
+            dcs.startUpdating {
+                animator.stop()
+            }
         }
     }
 }
