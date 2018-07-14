@@ -14,7 +14,7 @@ import android.graphics.Color
 import android.graphics.RectF
 
 
-val node_colors : List<Int> = arrayOf("#f44336", "#3F51B5", "#9C27B0", "4CAF50", "#283593").map {color -> Color.parseColor(color)}
+val node_colors : Array<String> = arrayOf("#1abc9c", "#3F51B5", "#9C27B0", "#4CAF50", "#2980b9")
 
 class DCSView(ctx : Context) : View(ctx) {
 
@@ -102,11 +102,13 @@ class DCSView(ctx : Context) : View(ctx) {
             val h : Float = canvas.height.toFloat()
             val r = Math.min(w, h) / (node_colors.size * 2)
             val currR : Float = r * (i + 1)
-            paint.color = node_colors[i]
+            next?.draw(canvas, paint)
+            paint.color = Color.parseColor(node_colors[i])
             canvas.save()
             canvas.translate(w/2, h/2)
             canvas.drawArc(RectF(-currR, -currR, currR, currR), 360f * state.scale, 360 - 360f * state.scale, true, paint)
             canvas.restore()
+
         }
 
         fun update(stopcb : (Float) -> Unit) {
@@ -172,7 +174,7 @@ class DCSView(ctx : Context) : View(ctx) {
 
         fun handleTap() {
             dcs.startUpdating {
-                animator.stop()
+                animator.start()
             }
         }
     }
